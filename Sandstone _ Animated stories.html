@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sandstone | Animated stories</title>
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Sandstone is a story brand: animated stories, merch and behind the scenes. Grain of sand, strength of stone.">
+<meta property="og:title" content="Sandstone">
+<meta property="og:description" content="Grain of sand. Strength of stone. Animated stories and a brand built to last.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000;--surface:#141312;--line:#2b2927;
+  --bone:#f2ebdd;--stone:#9a9690;--sand:#d9b77e;--clay:#c08a5b;
+  --display:"Syne","Arial Black",system-ui,sans-serif;
+  --body:"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--bone);font-family:var(--body);line-height:1.6;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--sand);outline-offset:3px}
+canvas#grains{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+main,header,footer{position:relative;z-index:1}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+/* nav */
+nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
+nav b{font-family:var(--display);font-size:1.05rem;letter-spacing:.04em}
+nav .links{display:flex;gap:22px;font-size:.95rem;color:var(--stone)}
+nav .links a{text-decoration:none}
+nav .links a:hover{color:var(--sand)}
+
+/* hero */
+.hero{min-height:80vh;display:grid;grid-template-columns:minmax(0,1fr);align-items:center;perspective:1000px}
+.stage{min-width:0;transform-style:preserve-3d;transition:transform .15s ease-out;will-change:transform}
+.mark{font-family:var(--display);font-weight:800;line-height:.9;margin:0;display:inline-block;white-space:nowrap;font-size:clamp(2rem,9vw,8rem);
+  background:linear-gradient(100deg,#e8c88c 0%,#d9b77e 30%,#a8a39b 62%,#6f6d69 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:url(#grain);text-transform:uppercase;transform:translateZ(10px);overflow-wrap:normal}
+.tag{font-size:clamp(1.1rem,2.4vw,1.6rem);color:var(--bone);max-width:30ch;margin:26px 0 0;transform:translateZ(30px)}
+.tag span{color:var(--stone)}
+.cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px;transform:translateZ(20px)}
+.btn{display:inline-block;padding:14px 26px;border-radius:999px;font-weight:700;text-decoration:none;border:1px solid var(--sand);transition:transform .2s,background .2s,color .2s}
+.btn.fill{background:var(--sand);color:#000}
+.btn:hover{transform:translateY(-3px)}
+.btn.fill:hover{background:var(--bone)}
+.btn.ghost:hover{background:rgba(217,183,126,.12)}
+
+/* stories */
+section{padding:110px 0 40px}
+h2{font-family:var(--display);font-size:clamp(2rem,5vw,3.4rem);line-height:1.05;margin:0 0 14px;max-width:16ch}
+.lead{color:var(--stone);max-width:52ch;margin:0 0 48px}
+.reel{display:flex;gap:28px;perspective:1200px;overflow-x:auto;padding:30px 4px 50px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.story{flex:0 0 240px;aspect-ratio:9/16;border-radius:26px;position:relative;overflow:hidden;scroll-snap-align:center;
+  border:1px solid var(--line);transform-style:preserve-3d;transition:transform .2s ease-out,border-color .2s;cursor:pointer;text-decoration:none;display:flex;align-items:flex-end}
+.story:nth-child(2){margin-top:40px}.story:nth-child(4){margin-top:40px}
+.story:hover{border-color:var(--sand)}
+.story .art{position:absolute;inset:0}
+.story .info{position:relative;padding:20px;width:100%;background:linear-gradient(transparent,rgba(0,0,0,.85) 70%)}
+.story h3{margin:0 0 2px;font-family:var(--display);font-size:1.15rem}
+.story p{margin:0;font-size:.85rem;color:var(--stone)}
+.play{position:absolute;top:18px;right:18px;width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.55);border:1px solid var(--sand);display:grid;place-items:center}
+.play::after{content:"";border-left:12px solid var(--sand);border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px}
+.a1{background:radial-gradient(circle at 30% 25%,#e8c88c,#a8763f 40%,#1a120a 80%)}
+.a2{background:radial-gradient(circle at 70% 30%,#b9b4aa,#4a4845 45%,#0d0c0b 85%)}
+.a3{background:conic-gradient(from 200deg at 50% 60%,#2a2724,#d9b77e,#6f6d69,#2a2724)}
+.a4{background:linear-gradient(160deg,#d9b77e,#3a342d 55%,#000)}
+
+.frame{position:relative;aspect-ratio:16/9;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:radial-gradient(circle at 30% 30%,#2a2724,#000 70%);display:grid;place-items:center}
+.frame video,.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.soon{text-align:center;color:var(--stone);padding:20px}
+.soon b{display:block;font-family:var(--display);color:var(--bone);font-size:1.3rem;margin-bottom:4px}
+.snd{position:absolute;right:14px;bottom:14px;z-index:2;background:rgba(0,0,0,.6);color:var(--bone);border:1px solid var(--sand);border-radius:999px;padding:8px 16px;font:inherit;cursor:pointer}
+.goods{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.good{border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--surface);transition:transform .2s,border-color .2s}
+.good:hover{border-color:var(--sand);transform:translateY(-4px)}
+.good .pic{aspect-ratio:1;display:grid;place-items:center;font-family:var(--display);font-size:2.4rem;font-weight:800;color:#000}
+.good .t{padding:16px 18px}
+.good b{font-family:var(--display);font-size:1.1rem;display:block}
+.good span{color:var(--stone);font-size:.9rem}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;border-top:1px solid var(--line);padding-top:22px}
+.steps b{font-family:var(--display);display:block;margin-bottom:6px;color:var(--sand)}
+.steps span{color:var(--stone);font-size:.95rem}
+dialog{border:1px solid var(--sand);border-radius:20px;background:#000;color:var(--bone);padding:0;width:min(92vw,420px);overflow:hidden}
+dialog::backdrop{background:rgba(0,0,0,.85)}
+dialog .frame{aspect-ratio:9/16;border-radius:0;border:0}
+dialog .x{position:absolute;top:10px;right:10px;z-index:3;background:rgba(0,0,0,.7);color:var(--bone);border:1px solid var(--sand);border-radius:50%;width:36px;height:36px;font-size:1.1rem;cursor:pointer}
+[hidden]{display:none!important}
+main{display:flex;flex-direction:column}
+main>section{width:100%}
+#about{order:-1}
+.links a[aria-current="page"]{color:var(--sand)}
+.doors{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.doors a{display:block;padding:26px 22px;border:1px solid var(--line);border-radius:18px;text-decoration:none;background:var(--surface);transition:border-color .2s,transform .2s}
+.doors a:hover{border-color:var(--sand);transform:translateY(-4px)}
+.doors b{display:block;font-family:var(--display);font-size:1.25rem;margin-bottom:4px}
+.doors span{color:var(--stone);font-size:.92rem}
+.faq{max-width:760px}
+details{border-top:1px solid var(--line);padding:20px 0}
+details:last-of-type{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;font-family:var(--display);font-size:1.15rem;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--sand);font-size:1.4rem;line-height:1}
+details[open] summary::after{content:"−"}
+details p{color:var(--stone);margin:12px 0 0;max-width:60ch}
+.vf{width:min(92vw,calc(78vh*9/16));aspect-ratio:9/16;margin:0 auto}
+.doors{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+/* about */
+.about{max-width:720px}
+.about p{color:var(--stone);font-size:1.08rem;max-width:56ch}
+.about p strong{color:var(--bone);font-weight:500}
+
+/* contact */
+.contact{padding-bottom:80px}
+.socials{display:flex;flex-wrap:wrap;gap:16px;margin-top:30px}
+.soc{padding:22px 28px;border:1px solid var(--line);border-radius:18px;text-decoration:none;min-width:220px;background:var(--surface);transition:border-color .2s,transform .2s}
+.soc:hover{border-color:var(--sand);transform:translateY(-4px)}
+.soc b{display:block;font-family:var(--display);font-size:1.2rem}
+.soc span{color:var(--stone);font-size:.9rem}
+footer{border-top:1px solid var(--line);padding:28px 0;color:var(--stone);font-size:.9rem}
+
+@media(max-width:760px){
+  nav .links{gap:14px;font-size:.85rem}
+  nav{flex-wrap:wrap;gap:6px 16px}
+  .goods,.steps{grid-template-columns:1fr}
+  .doors{grid-template-columns:1fr 1fr}
+  .story{flex-basis:210px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="grain" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="4" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.4 1.75" result="a"/>
+    <feComposite in="SourceGraphic" in2="a" operator="in"/>
+  </filter>
+</svg>
+<canvas id="grains" aria-hidden="true"></canvas>
+
+<header class="wrap">
+  <nav>
+    <a href="#home" style="text-decoration:none"><b>Sandstone</b></a>
+    <div class="links"><a href="#films">Films</a><a href="#shop">Shop</a><a href="#about">About</a><a href="#faq">FAQ</a><a href="#sandstorm">Sandstorm</a><a href="#contact">Contact</a></div>
+  </nav>
+  <div class="hero" data-page="home">
+    <div class="stage" id="stage">
+      <h1 class="mark">Sandstone</h1>
+      <p class="tag">Grain of sand. <span>Strength of stone.</span></p>
+      <div class="cta">
+        <a class="btn fill" href="#films">Watch the films</a>
+        <a class="btn ghost" href="#sandstorm">Join the Sandstorm</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="trailer" class="wrap" data-page="home films" style="padding-top:20px">
+    <div class="frame vf" id="trailerFrame"></div>
+  </section>
+
+  <section class="wrap" data-page="home" style="padding-top:20px">
+    <div class="doors">
+      <a href="#films"><b>Films</b><span>Animated stories to watch</span></a>
+      <a href="#shop"><b>Shop</b><span>The first Sandstone drop</span></a>
+      <a href="#about"><b>About</b><span>The brand and how we make things</span></a>
+      <a href="#sandstorm"><b>Sandstorm</b><span>Join the community</span></a>
+      <a href="#contact"><b>Contact us</b><span>Collaborations and questions</span></a>
+    </div>
+  </section>
+
+  <section id="films" class="wrap" data-page="films">
+    <h2>Stories that stay with you</h2>
+    <p class="lead">Short animated stories in the vertical format you watch every day. Tap one to play it.</p>
+    <div class="reel">
+      <a class="story tilt" href="#" aria-label="Story one"><div class="art a1"></div><div class="play"></div><div class="info"><h3>The Last Grain</h3><p>Animated short</p></div></a>
+      <a class="story tilt" href="#" aria-label="Story two"><div class="art a2"></div><div class="play"></div><div class="info"><h3>Weight of a Mountain</h3><p>Animated short</p></div></a>
+      <a class="story tilt" href="#" aria-label="Story three"><div class="art a3"></div><div class="play"></div><div class="info"><h3>Desert Letters</h3><p>Animated short</p></div></a>
+      <a class="story tilt" href="#" aria-label="Story four"><div class="art a4"></div><div class="play"></div><div class="info"><h3>Coming soon</h3><p>New story</p></div></a>
+    </div>
+  </section>
+
+  <section id="shop" class="wrap" data-page="shop">
+    <h2>Own a piece of the story</h2>
+    <p class="lead">The first Sandstone drop is on its way. Follow us to see it first.</p>
+    <div class="goods">
+      <div class="good"><div class="pic" style="background:linear-gradient(135deg,#e8c88c,#a8763f)">Tee</div><div class="t"><b>Sandstone tee</b><span>Coming soon</span></div></div>
+      <div class="good"><div class="pic" style="background:linear-gradient(135deg,#b9b4aa,#4a4845)">Print</div><div class="t"><b>Story art print</b><span>Coming soon</span></div></div>
+      <div class="good"><div class="pic" style="background:linear-gradient(135deg,#c08a5b,#3a342d)">Cap</div><div class="t"><b>Sandstone cap</b><span>Coming soon</span></div></div>
+    </div>
+    <div class="cta" style="transform:none"><a class="btn ghost" data-link="shop" href="#contact">See the drop</a></div>
+  </section>
+
+  <section id="making" class="wrap" data-page="about">
+    <h2>How a story gets made</h2>
+    <p class="lead">Every Sandstone story follows the same path, from a rough idea to the day it goes live.</p>
+    <div class="steps">
+      <div><b>Idea</b><span>A grain of sand: one line that sticks.</span></div>
+      <div><b>Script and storyboard</b><span>We shape it into scenes.</span></div>
+      <div><b>Animation</b><span>Frame by frame, in 3D motion.</span></div>
+      <div><b>Release</b><span>Live on YouTube and Instagram.</span></div>
+    </div>
+  </section>
+
+  <section id="about" class="wrap" data-page="about">
+    <div class="about">
+      <div>
+        <h2>A story brand, built to last.</h2>
+        <p><strong>Sandstone started with animated stories, but it is a brand.</strong> Every idea begins as a grain of sand and is shaped into something solid: films, products and a community that grows with each release.</p>
+        <p>We tell stories on YouTube and Instagram, make things you can own, and show how it is all made.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="sandstorm" class="wrap" data-page="sandstorm">
+    <h2>Join the Sandstorm</h2>
+    <p class="lead">Every grain of sand is small. Together we are a storm. Sandstorm is the Sandstone community: the people who watch, vote and help shape what we make next.</p>
+    <div class="cta" style="transform:none;margin:0 0 56px"><a class="btn fill" data-link="community" href="#contact">Join the Sandstorm</a></div>
+    <div class="steps">
+      <div><b>First look</b><span>See new stories before everyone else.</span></div>
+      <div><b>Your vote</b><span>Help choose the next story we make.</span></div>
+      <div><b>Behind the scenes</b><span>Follow how each story is built.</span></div>
+      <div><b>Early drops</b><span>Get first access to shop releases.</span></div>
+    </div>
+  </section>
+
+  <section id="faq" class="wrap" data-page="faq">
+    <h2>Questions, answered</h2>
+    <p class="lead">The short answers to what people ask us most.</p>
+    <div class="faq">
+      <details><summary>What is Sandstone?</summary><p>Sandstone is a story brand. We make animated stories and build a brand around them: films, products and a community.</p></details>
+      <details><summary>Where can I watch the films?</summary><p>On YouTube and Instagram. The Films page on this site plays them too.</p></details>
+      <details><summary>When does the shop open?</summary><p>The first drop is coming soon. Follow us on Instagram to see it first.</p></details>
+      <details><summary>Can we work together?</summary><p>Yes. Email us from the Contact page with your idea.</p></details>
+      <details><summary>Can I share or reuse your stories?</summary><p>Sharing our links is always welcome. For any other use, please email us first.</p></details>
+    </div>
+  </section>
+
+  <section id="contact" class="wrap contact" data-page="contact">
+    <h2>Contact us</h2>
+    <p class="lead">Questions, collaborations or press: reach us here, or follow along for new stories.</p>
+    <div class="socials">
+      <a class="soc" data-link="youtube" href="#"><b>YouTube</b><span>Full animated stories</span></a>
+      <a class="soc" data-link="instagram" href="#"><b>Instagram</b><span>Clips and behind the scenes</span></a>
+      <a class="soc" href="mailto:hello@example.com"><b>Email</b><span>hello@example.com</span></a>
+    </div>
+  </section>
+</main>
+
+<dialog id="player"><button class="x" aria-label="Close">×</button><div class="frame" id="pf"></div></dialog>
+
+<footer><div class="wrap">© 2026 Sandstone. Grain of sand, strength of stone.</div></footer>
+
+<script>
+(function(){
+  var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* sand grains */
+  var c=document.getElementById("grains"),x=c.getContext("2d"),W,H,P=[],mx=.5,my=.5;
+  function size(){var d=Math.min(devicePixelRatio||1,2);W=c.width=innerWidth*d;H=c.height=innerHeight*d;x.setTransform(1,0,0,1,0,0);x.scale(d,d)}
+  size();addEventListener("resize",size);
+  for(var i=0;i<110;i++)P.push({x:Math.random(),y:Math.random(),z:Math.random()*.9+.1,v:Math.random()*.0006+.0002});
+  function frame(){
+    x.clearRect(0,0,innerWidth,innerHeight);
+    for(var i=0;i<P.length;i++){
+      var p=P[i];
+      if(!reduce){p.y+=p.v*p.z;p.x+=.00008*p.z;if(p.y>1){p.y=0;p.x=Math.random()}if(p.x>1)p.x=0}
+      var px=p.x*innerWidth+(mx-.5)*40*p.z,py=p.y*innerHeight+(my-.5)*40*p.z;
+      var t=p.y;x.fillStyle="rgba("+Math.round(217-t*90)+","+Math.round(183-t*40)+","+Math.round(126+t*20)+","+(.25+p.z*.5)+")";
+      x.beginPath();x.arc(px,py,p.z*1.7,0,6.283);x.fill();
+    }
+    if(!reduce)requestAnimationFrame(frame);
+  }
+  frame();
+  /* hero 3D tilt */
+  var st=document.getElementById("stage");
+  addEventListener("pointermove",function(e){
+    mx=e.clientX/innerWidth;my=e.clientY/innerHeight;
+    if(reduce)return;
+    st.style.transform="rotateY("+((mx-.5)*5)+"deg) rotateX("+((.5-my)*4)+"deg)";
+  });
+  /* trailer: the Sandstone launch film, drawn live */
+  function film(host){
+    var W=540,H=960,D=12.5,cv=document.createElement("canvas"),c=cv.getContext("2d");
+    cv.width=W*2;cv.height=H*2;cv.style.cssText="width:100%;height:100%;display:block";c.scale(2,2);host.appendChild(cv);
+    var S=[217,178,122],T=[189,183,168],G=[],ready=false,fs=100,t=0,play=true,last=performance.now();
+    function cl(x){return x<0?0:x>1?1:x}
+    function sg(v,a,b){return cl((v-a)/(b-a))}
+    function ea(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
+    function ou(x){return 1-Math.pow(1-x,3)}
+    function mx(a,b,k){return a+(b-a)*k}
+    function R(a,b){return a+Math.random()*(b-a)}
+    function ls(v){if("letterSpacing" in c)c.letterSpacing=v}
+    function build(){
+      var o=document.createElement("canvas");o.width=W;o.height=H;var q=o.getContext("2d");
+      q.font='700 100px "Barlow Condensed",Impact,sans-serif';
+      if("letterSpacing" in q)q.letterSpacing="2px";
+      fs=100*(W*.86)/q.measureText("SANDSTONE").width;
+      q.font='700 '+fs+'px "Barlow Condensed",Impact,sans-serif';
+      q.textAlign="center";q.textBaseline="middle";q.fillStyle="#fff";q.fillText("SANDSTONE",W/2,H/2+fs*.04);
+      var d=q.getImageData(0,0,W,H).data,p=[];
+      for(var y=0;y<H;y+=3)for(var x=0;x<W;x+=3)if(d[(y*W+x)*4+3]>140)p.push([x,y]);
+      p.sort(function(){return Math.random()-.5});
+      G=p.slice(0,2600).map(function(a){return{tx:a[0],ty:a[1],x0:R(-60,W+60),y0:R(-80,H),vx:R(8,26),vy:R(10,40),dl:Math.random(),r:R(.7,1.7),ph:Math.random()*6.28,k:cl((a[0]-W*.07)/(W*.86)),a:R(.55,1)}});
+      ready=true;
+    }
+    var fl=document.fonts?Promise.race([Promise.all([document.fonts.load('700 100px "Barlow Condensed"'),document.fonts.load('500 42px "Barlow Condensed"'),document.fonts.load('500 17px Barlow')]),new Promise(function(r){setTimeout(r,2500)})]):Promise.resolve();
+    fl.then(build,build);
+    function draw(t){
+      c.clearRect(0,0,W,H);c.fillStyle="#000";c.fillRect(0,0,W,H);
+      var fade=1-.78*sg(t,5.6,7);
+      for(var i=0;i<G.length;i++){
+        var g=G[i],dx=g.x0+g.vx*t+Math.sin(t*.9+g.ph)*14,dy=g.y0+g.vy*t+Math.cos(t*.7+g.ph)*10;
+        dx=((dx+80)%(W+160)+(W+160))%(W+160)-80;dy=((dy+90)%(H+180)+(H+180))%(H+180)-90;
+        var p=ea(sg(t,1.4+g.dl*1.3,3.9+g.dl)),x=mx(dx,g.tx,p),y=mx(dy,g.ty,p);
+        if(p>=1){x+=Math.sin(t*2+g.ph)*.35;y+=Math.cos(t*1.7+g.ph)*.35}
+        var al=g.a*(t<1.4?.35+.65*sg(t,0,1.4):1)*(p>=1?fade:1);
+        c.fillStyle="rgba("+((S[0]*(1-g.k)+T[0]*g.k)|0)+","+((S[1]*(1-g.k)+T[1]*g.k)|0)+","+((S[2]*(1-g.k)+T[2]*g.k)|0)+","+al.toFixed(2)+")";
+        c.fillRect(x,y,g.r*1.6,g.r*1.6);
+      }
+      c.save();c.textAlign="center";c.textBaseline="middle";
+      var a=sg(t,.4,1.2)*(1-sg(t,2.4,3.2));
+      if(a>0){c.globalAlpha=a;c.fillStyle="#8d8777";c.font="400 19px Barlow,system-ui,sans-serif";ls("2.66px");c.fillText("Something is taking shape",W/2,433)}
+      c.globalAlpha=1;
+      var wr=ea(sg(t,4.3,5.9)),wa=sg(t,4.3,4.8);
+      if(wa>0){c.save();c.beginPath();c.rect(0,0,W*wr,H);c.clip();c.globalAlpha=wa;c.font='700 '+fs+'px "Barlow Condensed",Impact,sans-serif';ls(fs*.02+"px");
+        var w=c.measureText("SANDSTONE").width,x0=W/2-w/2,gr=c.createLinearGradient(x0,0,x0+w,0);
+        gr.addColorStop(0,"#e2b97c");gr.addColorStop(.38,"#c99f66");gr.addColorStop(.55,"#d3ccbb");gr.addColorStop(1,"#aaa493");
+        c.fillStyle=gr;c.fillText("SANDSTONE",W/2,H/2+fs*.04);c.restore()}
+      function up(s,f,col,cy,st,sp){var k=ou(sg(t,st,st+.9));if(k<=0)return;c.globalAlpha=k;c.fillStyle=col;c.font=f;ls(sp);c.fillText(s,W/2,cy+(1-k)*14)}
+      up("Grain of sand.",'500 42px "Barlow Condensed",sans-serif',"#d9b27a",611,6.6,"1.68px");
+      up("Strength of stone.",'500 42px "Barlow Condensed",sans-serif',"#bdb7a8",663,7.5,"1.68px");
+      var lk=ou(sg(t,8.9,10));
+      if(lk>0){var lg=c.createLinearGradient(270-90*lk,0,270+90*lk,0);lg.addColorStop(0,"#d9b27a");lg.addColorStop(1,"#bdb7a8");c.globalAlpha=1;c.fillStyle=lg;c.fillRect(270-90*lk,740,180*lk,1)}
+      var pk=ou(sg(t,10.3,11.2));
+      if(pk>0){c.globalAlpha=pk;var py=812+(1-pk)*14;c.strokeStyle="#bdb7a8";c.lineWidth=1;c.beginPath();if(c.roundRect)c.roundRect(150.5,py+.5,239,44,22);else c.rect(150.5,py+.5,239,44);c.stroke();c.fillStyle="#e9e4d8";c.font="500 17px Barlow,sans-serif";ls("0px");c.fillText("Join the Sandstorm",270,py+23)}
+      c.restore();
+    }
+    function frame(n){
+      var dt=Math.min((n-last)/1000,.1);last=n;
+      if(ready&&host.offsetParent!==null){if(play){t+=dt;if(t>D+1.5)t=0}draw(Math.min(t,D))}
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    var b=document.createElement("button");b.className="snd";b.textContent="Pause";
+    b.onclick=function(){play=!play;b.textContent=play?"Pause":"Play"};host.appendChild(b);
+    cv.onclick=function(){if(t>10.3)location.hash="sandstorm"};
+    if(reduce){t=D;play=false;b.textContent="Play"}
+  }
+  /* links: paste your URLs here (YouTube links or direct video files) */
+  var LINKS={trailer:"",stories:["","","",""],youtube:"",instagram:"",shop:"",community:""};
+  function media(url,auto){
+    if(!url)return null;
+    var m=url.match(/(?:youtu\.be\/|v=|shorts\/)([\w-]{11})/),e;
+    if(m){e=document.createElement("iframe");e.src="https://www.youtube.com/embed/"+m[1]+(auto?"?autoplay=1&rel=0":"?rel=0");e.allow="autoplay;encrypted-media;picture-in-picture";e.allowFullscreen=true;e.title="Sandstone video"}
+    else{e=document.createElement("video");e.src=url;e.controls=true;e.playsInline=true;if(auto)e.autoplay=true}
+    return e;
+  }
+  var tf=document.getElementById("trailerFrame"),tv=media(LINKS.trailer);if(!tv)film(tf);
+  if(tv){tf.innerHTML="";tf.appendChild(tv);
+    if(tv.tagName==="VIDEO"){tv.muted=true;tv.autoplay=true;tv.loop=true;
+      var sb=document.createElement("button");sb.className="snd";sb.textContent="Sound on";
+      sb.onclick=function(){tv.muted=!tv.muted;sb.textContent=tv.muted?"Sound on":"Sound off"};tf.appendChild(sb)}}
+  var dlg=document.getElementById("player"),pf=document.getElementById("pf");
+  function shut(){pf.innerHTML="";if(dlg.open)dlg.close()}
+  dlg.querySelector(".x").onclick=shut;
+  dlg.addEventListener("close",function(){pf.innerHTML=""});
+  dlg.addEventListener("click",function(e){if(e.target===dlg)shut()});
+  document.querySelectorAll(".story").forEach(function(el,i){
+    el.addEventListener("click",function(e){
+      e.preventDefault();pf.innerHTML="";var v=media(LINKS.stories[i],true);
+      if(v)pf.appendChild(v);else pf.innerHTML='<div class="soon"><b>Coming soon</b>This story will play here.</div>';
+      dlg.showModal();
+    });
+  });
+  document.querySelectorAll("[data-link]").forEach(function(a){var u=LINKS[a.dataset.link];if(u){a.href=u;a.target="_blank";a.rel="noopener"}});
+  /* wordmark fits its container */
+  var mk=document.querySelector(".mark"),stg=document.getElementById("stage");
+  function fit(){
+    mk.style.fontSize="100px";
+    var w=mk.offsetWidth,a=stg.clientWidth;
+    if(w&&a)mk.style.fontSize=Math.min(160,100*a/w*0.94)+"px";
+  }
+  fit();addEventListener("resize",fit);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+  /* pages */
+  var pages=["home","films","shop","about","faq","sandstorm","contact"];
+  function route(){
+    var h=(location.hash||"#home").slice(1);if(pages.indexOf(h)<0)h="home";
+    document.querySelectorAll("[data-page]").forEach(function(s){s.hidden=s.dataset.page.split(" ").indexOf(h)<0});
+    document.querySelectorAll(".links a").forEach(function(a){a.setAttribute("aria-current",a.getAttribute("href")==="#"+h?"page":"false")});
+    scrollTo(0,0);fit();
+  }
+  addEventListener("hashchange",route);route();
+  /* story card tilt */
+  document.querySelectorAll(".tilt").forEach(function(el){
+    el.addEventListener("pointermove",function(e){
+      if(reduce)return;
+      var r=el.getBoundingClientRect(),px=(e.clientX-r.left)/r.width-.5,py=(e.clientY-r.top)/r.height-.5;
+      el.style.transform="rotateY("+(px*18)+"deg) rotateX("+(-py*18)+"deg) translateZ(14px)";
+    });
+    el.addEventListener("pointerleave",function(){el.style.transform=""});
+  });
+})();
+</script>
+</body>
+</html>
